@@ -92,7 +92,7 @@ var PopupCalendar = {
   _updateForm: function(e) {
     // Change selected stat of the days in the calendar and update the value of the form
     var currentForm = this.form.srcElement;
-    var clickedDay = e.srcElement;
+    var clickedDay = e.srcElement.parentElement;
 
     // If using a date time form we want to preserve the time set
     var selectedDateArr = currentForm.value.split(' ');
@@ -126,13 +126,13 @@ var PopupCalendar = {
   _addEventChangeMonth: function(e) {
     // Add a click event that changes month
     // Get the next and previous month DOM elements
-    var prev = document.getElementById('dpPrev');
-    var next = document.getElementById('dpNext');
+/*    var prev = document.getElementById('dpPrev');
+    var next = document.getElementById('dpNext');*/
 
     // We set the data-click attribute to make sure that we do not get multiple click events attached to the buttons
     // This is a small hack, you can not user removeEventHandler or detachEvent since we do not have the handler stored
     //     those functions need the exact same handler that was used to addEventHandler or attatchEvent
-    if (prev.getAttribute('data-click') !== 'on') {
+/*    if (prev.getAttribute('data-click') !== 'on') {
       addListener(prev, 'click', function() {
         var dp = PopupCalendar;
         var monthHead = document.getElementById("dpMonth");
@@ -161,7 +161,7 @@ var PopupCalendar = {
         dp._fillData(month, e);
       });
     }
-    prev.setAttribute('data-click', 'on');
+    prev.setAttribute('data-click', 'on');*/
   },
   _getDisplayDate: function(e) {
     var d = new Date();
@@ -201,11 +201,11 @@ var PopupCalendar = {
     }
     var monthHead = document.getElementById("dpMonth");
     var currMonthStyle = false;
-    monthHead.innerHTML = showDateJS.getFullYear() + ' ' + this.monthArr[showDateJS.getMonth()];
+//    monthHead.innerHTML = showDateJS.getFullYear() + ' ' + this.monthArr[showDateJS.getMonth()];
     monthHead.setAttribute("data-date", showDateJS);
 
     var hide = false;
-    for (var i = 0; i < 42; i++) {
+    for (var i = 0; i < gCalenderData.length; i++) {
       currMonthStyle = true;
       var dpDay = document.getElementById('dpDay_' + i);
 
@@ -222,12 +222,13 @@ var PopupCalendar = {
       if (startDayJS.toLocaleDateString() === selectedDateJS.toLocaleDateString()) {
         addClass(dpDay, 'selected');
       }
-      if (!currMonthStyle && i === 35) {
+/*      if (!currMonthStyle && i === 35) {
         hide = true;
-      }
+      }*/
       if (!hide) {
         dpDay.style.display = 'flex-box';
-        dpDay.innerHTML = startDayJS.getDate();
+//        dpDay.innerHTML = startDayJS.getDate();
+        dpDay.innerHTML = '<img src="' + gCalenderData[i].image + '"><div>' + gCalenderData[i].name + '</div>';
         dpDay.setAttribute("data-date", startDayJS.toLocaleDateString('sv-SE'));
         //dayList += '<div class="dpDay ' + currMonthStyle + ' ' + today + ' ' + selected + '" data-date="' + startDayJS.toLocaleDateString('sv-SE') + '">' + startDayJS.getDate() + '</div>';
       } else {
@@ -295,13 +296,9 @@ var PopupCalendar = {
   },
   _getTemplate: function() {
     // Build the HTML that displays the content of the pop up calendar
-    var monthHead = '<div id="dpPrev" class="dpNav"><</div><div id="dpMonth">'
-        + '</div><div id="dpNext" class="dpNav">></div>';
+    var monthHead = '<div id="dpMonth">Wähle das Geburtsdatum der Person aus</div>';
     var dayList = '';
-    for (var i = 0; i < 7; i++) {
-      dayList += '<div class="dpDayCol">' + this.dayArr[i] + '</div>';
-    }
-    for (var i = 0; i < 42; i++) {
+    for (var i = 0; i < gCalenderData.length; i++) {
       dayList += '<div class="dpDay" id="dpDay_' + i + '" data-date=""></div>';
     }
     var dpString = '<div id="dp_datepicker"><div id="dpHead">' + monthHead + '</div><div id="dpBody">' + dayList + '</div></div>';
@@ -309,25 +306,19 @@ var PopupCalendar = {
   }
 };
 
-// Create a PopupCalendar object and then loop all elements with the class "datepicker" and initiate the PopupCalendar on them
-var dp = PopupCalendar;
-var calendarObj = document.getElementsByClassName('datepicker');
-var i = 0;
-while (i < calendarObj.length) {
-  dp.init(calendarObj[i]);
-  i++;
-}
-
 function parseData() {
   var monthLabel = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 
   $.each(jsonObject, function () {
-    gCalenderData.push({
-      date: ('0' + (1 + monthLabel.indexOf(this.monthLabel))).slice(-2) + '-' + ('0' + this.d).slice(-2),
-      name: this.personLabel || 'unbekannt',
-      text: this.personDesc || '',
-      uri: this.link || ''
-    });
+    if (gCalenderData.length < 20) {
+      gCalenderData.push({
+  //      date: '2019-' + ('0' + (1 + monthLabel.indexOf(this.monthLabel))).slice(-2) + '-' + ('0' + this.d).slice(-2),
+        date: '2019-07-05',
+        name: this.humanLabel || 'unbekannt',
+//        text: this.human || '',
+        image: this.picture || ''
+      });
+    }
   });
 }
 
@@ -341,9 +332,22 @@ function sortData() {
   });
 }
 
+function initCalendar() {
+// Create a PopupCalendar object and then loop all elements with the class "datepicker" and initiate the PopupCalendar on them
+  var dp = PopupCalendar;
+  var calendarObj = document.getElementsByClassName('datepicker');
+  var i = 0;
+  while (i < calendarObj.length) {
+    dp.init(calendarObj[i]);
+    i++;
+  }
+}
+
 $(document).ready(function() {
   parseData();
   sortData();
+
+  initCalendar();
 
   console.log(gCalenderData);
 });
