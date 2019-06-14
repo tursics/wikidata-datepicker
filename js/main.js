@@ -1,5 +1,11 @@
 // main.js
 "use strict";
+
+var gCalenderData = [];
+
+
+
+
 // Manage classes in html elements
 function hasClass(ele,cls) {
   return !!ele.className.match(new RegExp('(s|^)'+cls+'(s|$)'));
@@ -244,8 +250,8 @@ var PopupCalendar = {
     // If it is visible we would like to hide it
     // If we click on another picker while it is open we just want to move it
     if (dc.style.display === 'block' &&
-      dc.style.top === dc.getAttribute('data-top') &&
-      dc.style.left === dc.getAttribute('data-left')
+        dc.style.top === dc.getAttribute('data-top') &&
+        dc.style.left === dc.getAttribute('data-left')
     ) {
       dc.style.display = 'none';
       return false;
@@ -290,7 +296,7 @@ var PopupCalendar = {
   _getTemplate: function() {
     // Build the HTML that displays the content of the pop up calendar
     var monthHead = '<div id="dpPrev" class="dpNav"><</div><div id="dpMonth">'
-      + '</div><div id="dpNext" class="dpNav">></div>';
+        + '</div><div id="dpNext" class="dpNav">></div>';
     var dayList = '';
     for (var i = 0; i < 7; i++) {
       dayList += '<div class="dpDayCol">' + this.dayArr[i] + '</div>';
@@ -311,3 +317,33 @@ while (i < calendarObj.length) {
   dp.init(calendarObj[i]);
   i++;
 }
+
+function parseData() {
+  var monthLabel = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+  $.each(jsonObject, function () {
+    gCalenderData.push({
+      date: ('0' + (1 + monthLabel.indexOf(this.monthLabel))).slice(-2) + '-' + ('0' + this.d).slice(-2),
+      name: this.personLabel || 'unbekannt',
+      text: this.personDesc || '',
+      uri: this.link || ''
+    });
+  });
+}
+
+function sortData() {
+  gCalenderData.sort(function (a, b) {
+    if (a.name.toUpperCase() < b.name.toUpperCase()) {
+      return -1;
+    }
+
+    return a.date < b.date;
+  });
+}
+
+$(document).ready(function() {
+  parseData();
+  sortData();
+
+  console.log(gCalenderData);
+});
