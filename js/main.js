@@ -310,7 +310,13 @@ function parseData() {
   var monthLabel = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 
   $.each(jsonObject, function () {
-    if (gCalenderData.length < 20) {
+    var j;
+    if (gCalenderData.length < 50) {
+      for (j = 0; j < gCalenderData.length; ++j) {
+        if (gCalenderData[j].image === this.picture) {
+          return;
+        }
+      }
       gCalenderData.push({
   //      date: '2019-' + ('0' + (1 + monthLabel.indexOf(this.monthLabel))).slice(-2) + '-' + ('0' + this.d).slice(-2),
         date: '2019-07-05',
